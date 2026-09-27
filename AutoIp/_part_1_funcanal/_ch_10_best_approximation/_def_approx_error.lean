@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_10_best_approximation._def_approx_error.Spec

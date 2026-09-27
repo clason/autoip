@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_20_iterated_tikhonov._thm_iterated_tikhonov_qualification.Spec

@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_07_spectral_theory._lem_eigenvalue_real.Spec

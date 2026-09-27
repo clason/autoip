@@ -1,0 +1,116 @@
+module
+
+import AutoIp._part_2_reg._ch_15_spectral_regularization._thm_hanke_raus_convergence.Spec -- shake: keep
+import AutoIpTests.Witnesses.Identity
+import AutoIpTests.Witnesses.Zero
+
+open Filter Topology
+open scoped InnerProductSpace ENNReal
+
+/-- The hypotheses of `AutoIp.hankeRaus_convergence` can hold together. -/
+theorem AutoIp.hankeRaus_convergence_satisfiable : ∃ (𝕜 : Type), ∃ (x1 : RCLike 𝕜), ∃ (E : Type), ∃ (F : Type), ∃ (x4 : NormedAddCommGroup E), ∃ (x5 : InnerProductSpace 𝕜 E), ∃ (x6 : CompleteSpace E), ∃ (x7 : NormedAddCommGroup F), ∃ (x8 : InnerProductSpace 𝕜 F), ∃ (x9 : CompleteSpace F), ∃ (K : E →L[𝕜] F), ∃ (ι : Type), ∃ (σ : ι → ℝ), ∃ (v : ι → E), ∃ (u : ι → F), ∃ (hs : IsSingularSystem K σ v u), ∃ (φ : (↑(Set.Ioi (0 : ℝ)) : Type) → ℝ → ℝ), ∃ (Cφ : ℝ), ∃ (ν : ℝ), ∃ (ε : ℝ), ∃ (ρ : ℝ), ∃ (hν : (0 : ℝ) < ν), ∃ (hρ : (0 : ℝ) < ρ), ∃ (x : E), (K ≠ (0 : E →L[𝕜] F)) ∧ (AutoIp.IsRegularizingFilter K φ Cφ) ∧ (∃ CF > (0 : ℝ), AutoIp.HasFilterBound K φ CF) ∧ (∃ Cν > (0 : ℝ),
+  ∀ (α : (↑(Set.Ioi (0 : ℝ)) : Type)),
+    ⨆ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ (2 : ℕ)), lam ^ ((ν + (1 : ℝ)) / (2 : ℝ)) * |(1 : ℝ) - lam * φ α lam| ≤
+      Cν * (↑α : ℝ) ^ ((ν + (1 : ℝ)) / (2 : ℝ))) ∧ (∀ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ (2 : ℕ)), Continuous fun (a : (↑(Set.Ioi (0 : ℝ)) : Type)) => φ a lam) ∧ ((0 : ℝ) < ε) ∧ (x ∈ AutoIp.sourceSet hs ν hν ρ hρ) :=
+  by
+  classical
+  have hone : IsSingularSystem (ι := Unit) (1 : ℝ →L[ℝ] ℝ)
+      (fun _ => 1) (fun _ => 1) (fun _ => 1) :=
+    { pos := fun _ => one_pos
+      orthonormal_left := ⟨fun _ => norm_one, fun {i j} h => absurd (Subsingleton.elim i j) h⟩
+      orthonormal_right := ⟨fun _ => norm_one, fun {i j} h => absurd (Subsingleton.elim i j) h⟩
+      span_left := Witnesses.Identity.span_left _ fun _ => rfl
+      span_right := Witnesses.Identity.span_right _ fun _ => rfl
+      map_left := fun _ => (one_mul (1 : ℝ)).symm
+      map_right := fun _ =>
+        (Witnesses.Identity.adjoint_one_apply 1).trans (one_mul (1 : ℝ)).symm }
+  set φ : Set.Ioi (0 : ℝ) → ℝ → ℝ := fun α lam => (max (α : ℝ) lam)⁻¹ with hφdef
+  have hφa : ∀ (α : Set.Ioi (0 : ℝ)) (lam : ℝ), φ α lam = (max (α : ℝ) lam)⁻¹ :=
+    fun _ _ => rfl
+  have hmax : ∀ (α : Set.Ioi (0 : ℝ)) (lam : ℝ), 0 < max (α : ℝ) lam := fun α lam =>
+    lt_max_of_lt_left α.2
+  have habs : ∀ (α : Set.Ioi (0 : ℝ)) (lam : ℝ), |φ α lam| ≤ (α : ℝ)⁻¹ := fun α lam => by
+    rw [hφa, abs_of_pos (inv_pos.2 (hmax α lam))]
+    exact inv_anti₀ α.2 (le_max_left _ _)
+  have hres : ∀ (α : Set.Ioi (0 : ℝ)) (lam : ℝ), 0 < lam →
+      |1 - lam * φ α lam| ≤ 1 ∧ ((α : ℝ) ≤ lam → 1 - lam * φ α lam = 0) := by
+    intro α lam hlam
+    have hm := hmax α lam
+    have hle : lam * φ α lam ≤ 1 := by
+      rw [hφa, ← div_eq_mul_inv, div_le_one hm]; exact le_max_right _ _
+    have hnn : 0 ≤ lam * φ α lam := mul_nonneg hlam.le (inv_nonneg.2 hm.le)
+    refine ⟨by rw [abs_le]; constructor <;> linarith, fun h => ?_⟩
+    rw [hφa, max_eq_right h, mul_inv_cancel₀ hlam.ne', sub_self]
+  have hflt : AutoIp.IsRegularizingFilter (1 : ℝ →L[ℝ] ℝ) φ 1 :=
+    { const_pos := one_pos
+      bddOn := fun α => ⟨(α : ℝ)⁻¹, fun t _ => habs α t⟩
+      tendsto_inv := by
+        intro lam hlam
+        refine tendsto_const_nhds.congr' ?_
+        filter_upwards [eventually_le_atBot (⟨lam, hlam.1⟩ : Set.Ioi (0 : ℝ))] with α hα
+        have hα' : (α : ℝ) ≤ lam := hα
+        rw [hφa, max_eq_right hα']
+      mul_abs_le := by
+        intro α lam hlam
+        rw [abs_of_pos (inv_pos.2 (hmax α lam)), ← div_eq_mul_inv, div_le_one (hmax α lam)]
+        exact le_max_right _ _ }
+  have hfb : AutoIp.HasFilterBound (1 : ℝ →L[ℝ] ℝ) φ 1 :=
+    ⟨⟨1, hflt⟩, one_pos, fun α => by
+      rw [one_mul]
+      exact Real.iSup_le (fun lam => Real.iSup_le (fun _ => habs α lam)
+        (inv_nonneg.2 (le_of_lt α.2))) (inv_nonneg.2 (le_of_lt α.2))⟩
+  have hqual : ∀ ν : ℝ, 0 < ν → ∀ α : Set.Ioi (0 : ℝ),
+      (⨆ lam ∈ Set.Ioc (0 : ℝ) (‖(1 : ℝ →L[ℝ] ℝ)‖ ^ (2 : ℕ)),
+        lam ^ (ν / (2 : ℝ)) * |(1 : ℝ) - lam * φ α lam|) ≤ 1 * (α : ℝ) ^ (ν / (2 : ℝ)) := by
+    intro ν hν α
+    have h0 : 0 ≤ (α : ℝ) ^ (ν / (2 : ℝ)) := Real.rpow_nonneg (le_of_lt α.2) _
+    rw [one_mul]
+    refine Real.iSup_le (fun lam => Real.iSup_le (fun hlam => ?_) h0) h0
+    obtain ⟨h1, h2⟩ := hres α lam hlam.1
+    rcases le_or_gt (α : ℝ) lam with h | h
+    · rw [h2 h, abs_zero, mul_zero]; exact h0
+    · have hp : lam ^ (ν / (2 : ℝ)) ≤ (α : ℝ) ^ (ν / (2 : ℝ)) :=
+        Real.rpow_le_rpow hlam.1.le h.le (by positivity)
+      have hp0 : 0 ≤ lam ^ (ν / (2 : ℝ)) := Real.rpow_nonneg hlam.1.le _
+      calc lam ^ (ν / (2 : ℝ)) * |(1 : ℝ) - lam * φ α lam| ≤ lam ^ (ν / (2 : ℝ)) * 1 :=
+            mul_le_mul_of_nonneg_left h1 hp0
+        _ ≤ (α : ℝ) ^ (ν / (2 : ℝ)) := by rw [mul_one]; exact hp
+  have hsupres : (⨆ (a : Set.Ioi (0 : ℝ)), ⨆ lam ∈ Set.Ioc (0 : ℝ)
+      (‖(1 : ℝ →L[ℝ] ℝ)‖ ^ (2 : ℕ)), |(1 : ℝ) - lam * φ a lam|) < 2 := by
+    have h : (⨆ (a : Set.Ioi (0 : ℝ)), ⨆ lam ∈ Set.Ioc (0 : ℝ)
+        (‖(1 : ℝ →L[ℝ] ℝ)‖ ^ (2 : ℕ)), |(1 : ℝ) - lam * φ a lam|) ≤ 1 :=
+      Real.iSup_le (fun a => Real.iSup_le (fun lam => Real.iSup_le
+        (fun hlam => (hres a lam hlam.1).1) zero_le_one) zero_le_one) zero_le_one
+    linarith
+  refine ⟨ℝ, inferInstance, ℝ, ℝ, inferInstance, inferInstance, inferInstance, inferInstance,
+    inferInstance, inferInstance, 1, Unit, fun _ => 1, fun _ => 1, fun _ => 1, hone, φ, 1, 1, 1,
+    1, one_pos, one_pos, 0, Witnesses.Identity.one_ne_zero', hflt, ⟨1, one_pos, hfb⟩,
+    ⟨1, one_pos, hqual (1 + 1) (by norm_num)⟩, ?_, one_pos,
+    (AutoIp.mem_sourceSet_iff _ _ _ _ _).2 ⟨0, by rw [norm_zero]; exact zero_le_one,
+      map_zero _⟩⟩
+  intro lam hlam
+  have hc : Continuous fun a : Set.Ioi (0 : ℝ) => max (a : ℝ) lam :=
+    continuous_subtype_val.max continuous_const
+  exact hc.inv₀ fun a => (lt_max_of_lt_right hlam.1).ne'
+
+/-- The hypotheses of `AutoIp.hankeRaus_convergence` can fail. -/
+theorem AutoIp.hankeRaus_convergence_nontrivial : ∃ (𝕜 : Type), ∃ (x1 : RCLike 𝕜), ∃ (E : Type), ∃ (F : Type), ∃ (x4 : NormedAddCommGroup E), ∃ (x5 : InnerProductSpace 𝕜 E), ∃ (x6 : CompleteSpace E), ∃ (x7 : NormedAddCommGroup F), ∃ (x8 : InnerProductSpace 𝕜 F), ∃ (x9 : CompleteSpace F), ∃ (K : E →L[𝕜] F), ∃ (ι : Type), ∃ (σ : ι → ℝ), ∃ (v : ι → E), ∃ (u : ι → F), ∃ (hs : IsSingularSystem K σ v u), ∃ (φ : (↑(Set.Ioi (0 : ℝ)) : Type) → ℝ → ℝ), ∃ (Cφ : ℝ), ∃ (ν : ℝ), ∃ (ε : ℝ), ∃ (ρ : ℝ), ∃ (hν : (0 : ℝ) < ν), ∃ (hρ : (0 : ℝ) < ρ), ∃ (x : E), ¬ ((K ≠ (0 : E →L[𝕜] F)) ∧ (AutoIp.IsRegularizingFilter K φ Cφ) ∧ (∃ CF > (0 : ℝ), AutoIp.HasFilterBound K φ CF) ∧ (∃ Cν > (0 : ℝ),
+  ∀ (α : (↑(Set.Ioi (0 : ℝ)) : Type)),
+    ⨆ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ (2 : ℕ)), lam ^ ((ν + (1 : ℝ)) / (2 : ℝ)) * |(1 : ℝ) - lam * φ α lam| ≤
+      Cν * (↑α : ℝ) ^ ((ν + (1 : ℝ)) / (2 : ℝ))) ∧ (∀ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ (2 : ℕ)), Continuous fun (a : (↑(Set.Ioi (0 : ℝ)) : Type)) => φ a lam) ∧ ((0 : ℝ) < ε) ∧ (x ∈ AutoIp.sourceSet hs ν hν ρ hρ)) :=
+  by
+  classical
+  have hss : IsSingularSystem (ι := Empty) (0 : ℝ →L[ℝ] ℝ)
+      (fun _ => 0) (fun _ => 0) (fun _ => 0) :=
+    { pos := fun i => i.elim
+      orthonormal_left := ⟨fun i => i.elim, fun {i _} _ => i.elim⟩
+      orthonormal_right := ⟨fun i => i.elim, fun {i _} _ => i.elim⟩
+      span_left := Witnesses.Zero.span_left _
+      span_right := Witnesses.Zero.span_right _
+      map_left := fun i => i.elim
+      map_right := fun i => i.elim }
+  refine ⟨ℝ, inferInstance, ℝ, ℝ, inferInstance, inferInstance, inferInstance, inferInstance,
+    inferInstance, inferInstance, 0, Empty, fun _ => 0, fun _ => 0, fun _ => 0, hss,
+    fun _ _ => 0, 1, 1, 1, 1, one_pos, one_pos, 0, ?_⟩
+  rintro ⟨h, -⟩
+  exact h rfl

@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_11_moore_penrose._lem_mp_equations.Spec

@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_19_general_source_conditions._cor_general_holder_rate.Spec

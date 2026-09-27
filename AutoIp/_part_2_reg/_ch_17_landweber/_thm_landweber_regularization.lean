@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_17_landweber._thm_landweber_regularization.Spec

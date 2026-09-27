@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_04_orthonormal_series._def_hilbert_basis.Spec

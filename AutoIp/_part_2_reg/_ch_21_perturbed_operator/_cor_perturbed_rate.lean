@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_21_perturbed_operator._cor_perturbed_rate.Spec

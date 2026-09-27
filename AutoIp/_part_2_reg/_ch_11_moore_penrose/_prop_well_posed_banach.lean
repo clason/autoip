@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_11_moore_penrose._prop_well_posed_banach.Spec

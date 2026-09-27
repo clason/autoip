@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_09_functions_of_compact_operator._lem_sigma_bound.API

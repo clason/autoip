@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_13_regularization._thm_reg_not_uniformly_bounded.Spec

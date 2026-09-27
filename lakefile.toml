@@ -1,0 +1,25 @@
+name = "inverse-problems"
+version = "0.1.0"
+defaultTargets = ["AutoIp"]
+testDriver = "AutoIpTests"
+lintDriver = "batteries/runLinter"
+# `linter.style.header` is off: it requires a module docstring on every file, and only the
+# Auxiliary and witness files carry one.
+leanOptions = { weak.linter.mathlibStandardSet = true, weak.linter.style.longFile = 1500, weak.linter.style.longFileDefValue = 1500, weak.linter.style.header = false }
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "de5ce8a9a66a4aa68a9bdbb35b63a06d34d9ca11"
+
+[[require]]
+name = "cite"
+git = "https://github.com/l-oksanen/cite.git"
+rev = "a20e0ece1dc6bedf15b72e1361ba847288f3ff93"
+
+[[lean_lib]]
+name = "AutoIp"
+
+[[lean_lib]]
+name = "AutoIpTests"

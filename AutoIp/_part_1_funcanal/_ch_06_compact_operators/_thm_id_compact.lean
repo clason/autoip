@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_06_compact_operators._thm_id_compact.Spec

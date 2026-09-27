@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_01_bounded_operators._thm_closed_range.Spec

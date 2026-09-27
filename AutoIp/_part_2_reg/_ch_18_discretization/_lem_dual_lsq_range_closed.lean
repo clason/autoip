@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_18_discretization._lem_dual_lsq_range_closed.API

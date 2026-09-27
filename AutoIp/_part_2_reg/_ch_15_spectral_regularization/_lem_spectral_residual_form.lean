@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_15_spectral_regularization._lem_spectral_residual_form.Spec

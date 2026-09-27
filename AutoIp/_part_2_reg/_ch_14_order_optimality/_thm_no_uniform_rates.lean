@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_2_reg._ch_14_order_optimality._thm_no_uniform_rates.Spec

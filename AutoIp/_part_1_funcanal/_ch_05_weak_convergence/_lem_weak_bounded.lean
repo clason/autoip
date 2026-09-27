@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_05_weak_convergence._lem_weak_bounded.Spec

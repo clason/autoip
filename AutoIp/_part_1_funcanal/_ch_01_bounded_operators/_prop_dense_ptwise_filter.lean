@@ -1,0 +1,3 @@
+module
+
+public import AutoIp._part_1_funcanal._ch_01_bounded_operators._prop_dense_ptwise_filter.API
