@@ -11,6 +11,7 @@
 \usepackage{amsthm}
 \usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=magenta]{hyperref}
 \usepackage{microtype}
+\usepackage{natbib}
 \usepackage[capitalise]{cleveref}
 
 \theoremstyle{plain}
@@ -66,9 +67,23 @@
 \fi
  
 \title{Regularization of inverse problems with preliminaries in functional analysis}
-\author{Tapio Helin}
+\author{Tapio Helin, Medet Nursultanov and Lauri Oksanen}
 \begin{document}
 \maketitle
+
+\chapter*{Background}
+\addcontentsline{toc}{chapter}{Background}
+
+This project auto-formalizes the classical theory of regularization for ill-posed inverse problems in the Lean~4 proof assistant. It began as the authors' entry point into the fascinating world of formalized mathematics. We emphasize that this is a work in progress: our objective is to continue to extend the formalized material, and we warmly invite colleagues to contribute and discuss how to make it useful. We hope that, as it matures, the library will serve as a foundation both for formalizing modern research-level results in the field as well as for educational purposes. This blueprint records the mathematical statements and proofs, to be matched node by node against the Lean development.
+
+The regularization theory itself (Part~\ref{part_2_reg}) largely follows the lecture notes \emph{Regularization of Inverse Problems} by \citet{Clason2021}, and we gratefully acknowledge our debt to this clear and self-contained exposition. Although the theory is well established and its structure largely settled, having such a precise presentation at hand proved invaluable for proofreading the output of the (auto)formalization. The numbering in this document does not follow that of the lecture notes, but each node indicates the result to which it corresponds. At the beginning of each chapter, we aim to cite the key earlier works that led to the results presented there; any omission of relevant work is entirely our own oversight, and we would be grateful to have it brought to our attention.
+
+Part~\ref{part_1_funcanal}, the functional-analytic preliminaries to the regularization
+theory, is classical material gathered from various (classical) sources rather than from
+a single reference. Much of the needed functional analysis is already formalized in Mathlib and we've done our best to avoid overlapping formalization. We aim for a design that adapts easily to the growth of Mathlib: as Mathlib expands, we intend to shrink our own functional analysis layer and rely increasingly on Mathlib instead.
+
+At the time of writing, the library covers only linear ill-posed problems, but we aim to extend it to nonlinear problems and beyond.
+
 \tableofcontents
 \part{Preliminaries in functional analysis}
 \label{part_1_funcanal}
@@ -2418,14 +2433,22 @@ directly.
 
 
 
-\section{Kolmogorov widths}
-
-
  \part{Regularization theory}
 \label{part_2_reg}
 
 \chapter{Ill-posedness and the Moore--Penrose inverse}
 \label{ch_11_moore_penrose}
+
+\noindent\emph{Background.} Well-posedness in the sense of Hadamard --- existence,
+uniqueness, and continuous dependence of the solution on the data --- was introduced by
+\citet{Hadamard1902} as the defining property of a properly posed mathematical model. The
+Moore--Penrose inverse, recovering the least-squares, minimum-norm solution whenever one
+exists, goes back to \citet{Moore1920} and was rediscovered, together with its
+now-standard characterisation via the four defining equations, by \citet{Penrose1955}.
+The operator-theoretic notion of ill-posedness used throughout the sequel --- non-closed
+range, rather than mere discontinuity of $T\dg$ on its domain --- is due to
+\citet{Nashed1987}; it is this failure of closedness, rather than unboundedness as such,
+that makes $T\dg$ genuinely pathological and regularization necessary.
 
 \begin{assumptions}
   \label{asm_ill_posedness_moore}
@@ -2943,6 +2966,18 @@ subspaces are closed, the first because $T$ is bounded.
 \chapter{Singular values, the Picard criterion, and source conditions}
 \label{ch_12_picard}
 
+\noindent\emph{Background.} The Picard criterion --- solvability decided by the decay of
+the data's coefficients against the singular values --- goes back to \citet{Picard1910},
+who established it for Fredholm integral equations of the first kind; it is the precise
+account of why the classical inverse $K^{-1}$, defined term-by-term on the singular
+system, fails to be everywhere defined or continuous. The resulting split of ill-posed
+problems into moderately (polynomial decay of $\sigma_n$) and severely, in particular
+exponentially, ill-posed ones, together with the power-scale source conditions
+$x\dg \in X_{\nu,\rho}$ that quantify how much smoother than merely being in
+$\Dom(K\dg)$ the sought solution is assumed to be, are standard in the regularization
+literature and are treated systematically in the monograph of
+\citet{EnglHankeNeubauer1996}, the main source \citet{Clason2021} follows.
+
 \begin{assumptions}
   \label{asm_singular_values_picard}
   $X$, $Y$ are Hilbert spaces and $K \in \Kk(X,Y)$ is
@@ -3207,6 +3242,17 @@ equality being \cref{prop_adjoint_props}.
 
 \chapter{Regularization and parameter choice}
 \label{ch_13_regularization}
+
+\noindent\emph{Background.} The abstract framework of this chapter --- approximating the
+ill-posed inverse $T\dg$ by a family $\{R_{\alpha}\}$ of continuous operators, and
+choosing $\alpha$ from the noise level and, if needed, the data --- is the basic
+machinery of regularization theory as laid out by \citet{TikhonovArsenin1977}, the book
+that gave the field its name. The discrepancy principle, choosing $\alpha$ so that the
+residual matches the noise level, is due to \citet{Morozov1966}. That a heuristic rule,
+one using the data alone and never the noise level $\delta$, cannot yield a convergent
+method unless $T\dg$ is already continuous --- the Bakushinski\u{\i} veto, motivating why
+a parameter choice rule is allowed to see $\delta$ at all --- is due to
+\citet{Bakushinskii1985}.
 
 \begin{assumptions}
   \label{asm_regularization_parameter_choice}
@@ -3636,6 +3682,16 @@ $x^{\delta}_{\alpha} := R_{\alpha} y^{\delta}$.
 
 \chapter{Convergence rates and order optimality}
 \label{ch_14_order_optimality}
+
+\noindent\emph{Background.} Convergence of a regularization method is, by itself, pointwise
+and can be arbitrarily slow, so a genuine rate needs an extra smoothness assumption on
+$x\dg$; this chapter makes that precise via the worst-case error over noise balls and the
+power-type source sets $X_{\nu,\rho}$ of the previous chapter. The sharp two-sided estimate
+$\varepsilon(X_{\nu,\rho},\delta) \asymp \delta^{\nu/(\nu+1)}\rho^{1/(\nu+1)}$, and the
+resulting notions of optimality and order optimality built on it, are due to
+\citet{Natterer1984}, who first established this convergence-rate exponent, together with
+its minimax optimality, for linear ill-posed problems under Hölder-type source
+conditions.
 
 \begin{assumptions}
   \label{asm_convergence_rates_order}
@@ -4092,6 +4148,15 @@ $x^{\delta}_{\alpha} := R_{\alpha} y^{\delta}$.
 
 \chapter{Spectral regularization}
 \label{ch_15_spectral_regularization}
+
+\noindent\emph{Background.} Truncated singular value decomposition, Tikhonov
+regularization, and Landweber iteration are all instances of a single scheme,
+$R_{\alpha} = \varphi_{\alpha}(K^{*}K)K^{*}$ for a filter function $\varphi_{\alpha}$
+approximating $\lambda^{-1}$, and the qualification of a filter --- how much of a
+Hölder-type source condition it can turn into a rate --- bounds the best order any such
+method can achieve. This unifying framework is systematized in
+\citet{EnglHankeNeubauer1996}. The Hanke--Raus rule, choosing $\alpha$ heuristically from
+the residual alone rather than from a known noise level, is due to \citet{HankeRaus1996}.
 
 \begin{assumptions}
   \label{asm_spectral_regularization}
@@ -5264,6 +5329,15 @@ $\overline{\Ran(K)} = Y$, equivalently $\Ker(K^{*}) = 0$.
 \chapter{Tikhonov regularization}
 \label{ch_16_tikhonov}
 
+\noindent\emph{Background.} The variational functional
+$J_{\alpha}(x) = \tfrac12\|Kx-y\|_Y^{2} + \tfrac{\alpha}{2}\|x\|_X^{2}$, whose unique
+minimiser recovers the spectral filter $\varphi_{\alpha}(\lambda) = (\lambda+\alpha)^{-1}$
+of the previous chapter, is Tikhonov's own regularization method \citep{Tikhonov1963},
+developed systematically together with Arsenin in \citet{TikhonovArsenin1977}. That the
+method saturates at qualification $2$ --- no source condition, however smooth, buys a
+rate better than $\delta^{2/3}$, and insisting on one forces $x\dg = 0$ --- is the
+converse and saturation result of \citet{Neubauer1997}.
+
 \begin{assumptions}
   \label{asm_tikhonov_regularization}
   As in the previous chapter.  Throughout,
@@ -5800,6 +5874,13 @@ the datum $y^{\delta} \in Y$ is fixed and arbitrary.
 
 \chapter{Landweber regularization}
 \label{ch_17_landweber}
+
+\noindent\emph{Background.} Landweber iteration --- the fixed-point recursion
+$x_m = x_{m-1} + \omega K^{*}(y - Kx_{m-1})$ for the normal equation $K^{*}Kx = K^{*}y$
+--- is due to \citet{Landweber1951}, who introduced it for Fredholm integral equations of
+the first kind; as a regularization method it plays the role of an iterative alternative
+to Tikhonov regularization, with the stopping index $m$ acting as $1/\alpha$ and,
+crucially, no saturation at qualification $2$.
 
 \begin{assumptions}
   \label{asm_landweber_regularization}
@@ -6421,6 +6502,14 @@ $\alpha = 1/m$.  All three of these are standing conventions.
 
 \chapter{Discretization as regularization}
 \label{ch_18_discretization}
+
+\noindent\emph{Background.} That letting the discretization level itself act as the
+regularization parameter --- solving finite-dimensional least-squares problems on an
+increasing sequence of subspaces, with the dimension $n$ playing the role of
+$1/\alpha$ --- already yields a convergent, order-optimal regularization method is due to
+\citet{Natterer1977}. The dual variant of this chapter, projecting the data space $Y$
+rather than the domain $X$, together with its parameter choice and rate theory, follows
+\citet{PlatoVainikko1990}.
 
 \begin{assumptions}
   \label{asm_discretization_as_regularization}
@@ -7173,6 +7262,14 @@ an infinite-dimensional Banach space.
 \chapter{General source conditions}
 \label{ch_19_general_source_conditions}
 
+\noindent\emph{Background.} Replacing the Hölder scale $\lambda \mapsto \lambda^{\nu/2}$
+by an arbitrary index function $\varphi$ generalizes the power-type source sets of
+\cref{ch_12_picard} to conditions adapted to the actual decay of the singular values.
+Logarithmic source conditions, needed for severely (exponentially) ill-posed problems
+where every Hölder rate is unattainably slow, are due to \citet{Hohage2000}. That
+essentially every $x\dg$ satisfies some source condition, for a suitable index function,
+is the general converse result of \citet{MatheHofmann2008}.
+
 \begin{assumptions}
   \label{asm_general_source_conditions}
   $K \in \Kk(X,Y)$ is compact with singular system
@@ -7489,6 +7586,14 @@ an instance, that is said explicitly rather than left to be noticed.
 \chapter{Iterated Tikhonov and semi-iterative methods}
 \label{ch_20_iterated_tikhonov}
 
+\noindent\emph{Background.} Iterating the Tikhonov step $m$ times raises the achievable
+qualification from $2$ to $2m$, postponing --- though never eliminating --- the
+saturation of \cref{ch_16_tikhonov}; this goes back to
+\citet{KingChillingworth1979}. The residual-polynomial framework of the second section,
+of which Landweber iteration is the simplest instance, is the abstract setting for the
+semi-iterative (Krylov-type) methods studied by \citet{Brakhage1987}, whose
+conjugate-gradient method for ill-posed problems attains every finite qualification.
+
 \begin{assumptions}
   \label{asm_iterated_tikhonov_semi}
   Those of the spectral chapter, unchanged: $K$, the
@@ -7740,6 +7845,12 @@ fixed integer, the number of Tikhonov steps.
 \chapter{Regularization with a perturbed operator}
 \label{ch_21_perturbed_operator}
 
+\noindent\emph{Background.} Splitting the total error into an operator error (from
+knowing $K$ only up to an approximation $K_h$), a propagated data error, and the usual
+approximation error is the standard treatment of regularization with an incompletely
+known operator, systematized alongside the noisy-data theory in
+\citet{EnglHankeNeubauer1996}.
+
 \begin{assumptions}
   \label{asm_regularization_with_perturbed}
   $K \in \Kk(X,Y)$ is the exact operator and
@@ -7917,6 +8028,13 @@ $x^{h,\delta}_{\alpha} := R_{\alpha}[K_h]\,y^{\delta}$.
 \chapter{The balancing principle}
 \label{ch_22_balancing}
 
+\noindent\emph{Background.} The balancing principle --- choosing the regularization
+parameter from a geometric grid by comparing reconstructions across scales, without
+knowing the source condition in advance, and still attaining an order-optimal rate ---
+adapts to ill-posed problems the adaptive estimation method of \citet{Lepskii1990} from
+nonparametric statistics; its formulation here, through index functions and an explicit
+oracle inequality, follows \citet{MathePereverzev2003}.
+
 \begin{assumptions}
   \label{asm_balancing_principle}
   $\{\varphi_{\alpha}\}$ is a regularizing filter
@@ -8064,4 +8182,106 @@ R_{\alpha_i}y^{\delta}$.
 \end{proof}
 
 
- \end{document}
+ 
+\begin{thebibliography}{99}
+
+\bibitem[Bakushinski{\u\i}, 1985]{Bakushinskii1985}
+A.~B. Bakushinski{\u\i} (1985), Remarks on choosing a regularization parameter using the
+quasioptimality and ratio criterion, \emph{USSR Comput. Math. Math. Phys.} 24(4),
+181--182.
+
+\bibitem[Brakhage, 1987]{Brakhage1987}
+H. Brakhage (1987), On ill-posed problems and the method of conjugate gradients, in:
+H.~W. Engl \& C.~W. Groetsch (eds.), \emph{Inverse and Ill-Posed Problems} (Sankt
+Wolfgang, 1986), Notes Rep. Math. Sci. Engrg. 4, Academic Press, Boston, MA, 165--175.
+
+\bibitem[Clason, 2021]{Clason2021}
+C. Clason (2021), \emph{Regularization of Inverse Problems}, lecture notes,
+arXiv:2001.00617v2 [math.FA].
+
+\bibitem[Engl et al., 1996]{EnglHankeNeubauer1996}
+H.~W. Engl, M. Hanke \& A. Neubauer (1996), \emph{Regularization of Inverse Problems},
+Kluwer Academic Publishers, Dordrecht.
+
+\bibitem[Hadamard, 1902]{Hadamard1902}
+J. Hadamard (1902), Sur les probl\`emes aux d\'eriv\'ees partielles et leur signification
+physique, \emph{Princeton University Bulletin} 13, 49--52.
+
+\bibitem[Hanke \& Raus, 1996]{HankeRaus1996}
+M. Hanke \& T. Raus (1996), A general heuristic for choosing the regularization
+parameter in ill-posed problems, \emph{SIAM J. Sci. Comput.} 17(4), 956--972.
+
+\bibitem[Hohage, 2000]{Hohage2000}
+T. Hohage (2000), Regularization of exponentially ill-posed problems,
+\emph{Numer. Funct. Anal. Optim.} 21(3--4), 439--464.
+
+\bibitem[King \& Chillingworth, 1979]{KingChillingworth1979}
+J.~T. King \& D. Chillingworth (1979), Approximation of generalized inverses by
+iterated regularization, \emph{Numer. Funct. Anal. Optim.} 1(5), 499--513.
+
+\bibitem[Landweber, 1951]{Landweber1951}
+L. Landweber (1951), An iteration formula for Fredholm integral equations of the first
+kind, \emph{Amer. J. Math.} 73(3), 615--624.
+
+\bibitem[Lepski{\u\i}, 1990]{Lepskii1990}
+O.~V. Lepski{\u\i} (1990), On a problem of adaptive estimation in Gaussian white noise,
+\emph{Theory Probab. Appl.} 35(3), 454--466.
+
+\bibitem[Math\'e \& Hofmann, 2008]{MatheHofmann2008}
+P. Math\'e \& B. Hofmann (2008), How general are general source conditions?,
+\emph{Inverse Problems} 24(1), 015009.
+
+\bibitem[Math\'e \& Pereverzev, 2003]{MathePereverzev2003}
+P. Math\'e \& S.~V. Pereverzev (2003), Geometry of linear ill-posed problems in variable
+Hilbert scales, \emph{Inverse Problems} 19(3), 789--803.
+
+\bibitem[Moore, 1920]{Moore1920}
+E.~H. Moore (1920), On the reciprocal of the general algebraic matrix, \emph{Bull. Amer.
+Math. Soc.} 26(9), 394--395.
+
+\bibitem[Morozov, 1966]{Morozov1966}
+V.~A. Morozov (1966), On the solution of functional equations by the method of
+regularization, \emph{Soviet Math. Dokl.} 7, 414--417.
+
+\bibitem[Nashed, 1987]{Nashed1987}
+M.~Z. Nashed (1987), A new approach to classification and regularization of ill-posed
+operator equations, in: H.~W. Engl \& C.~W. Groetsch (eds.), \emph{Inverse and Ill-Posed
+Problems} (Sankt Wolfgang, 1986), Notes Rep. Math. Sci. Engrg. 4, Academic Press, Boston,
+MA, 53--75.
+
+\bibitem[Natterer, 1977]{Natterer1977}
+F. Natterer (1977), Regularisierung schlecht gestellter Probleme durch
+Projektionsverfahren, \emph{Numer. Math.} 28, 329--342.
+
+\bibitem[Natterer, 1984]{Natterer1984}
+F. Natterer (1984), Error bounds for Tikhonov regularization in Hilbert scales,
+\emph{Applicable Anal.} 18(1--2), 29--37.
+
+\bibitem[Neubauer, 1997]{Neubauer1997}
+A. Neubauer (1997), On converse and saturation results for Tikhonov regularization of
+linear ill-posed problems, \emph{SIAM J. Numer. Anal.} 34(2), 517--527.
+
+\bibitem[Penrose, 1955]{Penrose1955}
+R. Penrose (1955), A generalized inverse for matrices, \emph{Math. Proc. Cambridge
+Philos. Soc.} 51(3), 406--413.
+
+\bibitem[Picard, 1910]{Picard1910}
+\'E. Picard (1910), Sur un th\'eor\`eme g\'en\'eral relatif aux \'equations int\'egrales
+de premi\`ere esp\`ece et sur quelques probl\`emes de physique math\'ematique,
+\emph{Rend. Circ. Mat. Palermo} 29, 79--97.
+
+\bibitem[Plato \& Vainikko, 1990]{PlatoVainikko1990}
+R. Plato \& G. Vainikko (1990), On the regularization of projection methods for solving
+ill-posed problems, \emph{Numer. Math.} 57(1), 63--79.
+
+\bibitem[Tikhonov, 1963]{Tikhonov1963}
+A.~N. Tikhonov (1963), Solution of incorrectly formulated problems and the
+regularization method, \emph{Soviet Math. Dokl.} 4, 1035--1038.
+
+\bibitem[Tikhonov \& Arsenin, 1977]{TikhonovArsenin1977}
+A.~N. Tikhonov \& V.~Y. Arsenin (1977), \emph{Solutions of Ill-Posed Problems},
+V.~H. Winston \& Sons, Washington, D.C.
+
+\end{thebibliography}
+
+\end{document}
