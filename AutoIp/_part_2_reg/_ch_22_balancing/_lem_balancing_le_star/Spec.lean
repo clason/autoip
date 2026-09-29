@@ -26,11 +26,29 @@ variable {𝕜 : Type*} [RCLike 𝕜] {E F : Type*} [NormedAddCommGroup E] [Inne
 variable [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
 variable {K : E →L[𝕜] F} {ι : Type*} {σ : ι → ℝ} {v : ι → E} {u : ι → F}
 
+/-- The error of each reconstruction splits into bias and data error: for an index function `φ`,
+`x† ∈ X_{φ,ρ}` and every `α > 0`, `‖x^δ_α - x†‖ ≤ ω_φ(α) ρ + Δ(α)`, where
+`ω_φ(α) = sup_{λ ∈ (0,κ]} φ(λ) |1 - λ φ_α(λ)|` and `Δ(α) = C_R δ α^(-1/2)` with `C_R = √(C_φ C_F)`.
+At the grid points this is `‖xᵢ - x†‖ ≤ ωᵢ + Δᵢ`. -/
+public theorem norm_spectralReg_sub_moorePenrose_le_bias_add (hs : IsSingularSystem K σ v u)
+    {flt : Set.Ioi (0 : ℝ) → ℝ → ℝ} {Cflt CF : ℝ} (hflt : IsRegularizingFilter K flt Cflt)
+    (hF : HasFilterBound K flt CF) {φ : ℝ → ℝ} {ρ : ℝ} (hφ : IsIndexFunction (‖K‖ ^ 2) φ)
+    (hρ : 0 < ρ) {y : F} (hy : y ∈ mpDomain K)
+    (hx : moorePenrose K ⟨y, hy⟩ ∈ sourceSetIndex hs φ (hφ.exists_bound_on_spectrum hs) ρ hρ)
+    {δ : ℝ} {z : F} (hz : ‖y - z‖ ≤ δ) (α : Set.Ioi (0 : ℝ)) :
+    ‖spectralReg hs flt (hflt.exists_bound_on_spectrum hs) α z - moorePenrose K ⟨y, hy⟩‖ ≤
+      (⨆ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ 2), φ lam * |1 - lam * flt α lam|) * ρ
+        + Real.sqrt (Cflt * CF) * δ * (α : ℝ) ^ (-(1 : ℝ) / 2) := by
+  have h1 := norm_spectralReg_sub_moorePenrose_le_iSup (α := α) hs hflt hφ hρ hy hx
+  have h2 := norm_spectralReg_sub_le_mul_rpow (α := α) hs hflt hF hz
+  have h3 := norm_sub_le_norm_sub_add_norm_sub
+    (spectralReg hs flt (hflt.exists_bound_on_spectrum hs) α z)
+    (spectralReg hs flt (hflt.exists_bound_on_spectrum hs) α y) (moorePenrose K ⟨y, hy⟩)
+  linarith
+
 /-- The balancing index does not overshoot: for an index function `φ`, `x† ∈ X_{φ,ρ}` and
 `ωⱼ = ω_φ(αⱼ) ρ`, if `i_* ≤ N` is an index with `ωⱼ ≤ Δⱼ` for every `j ≥ i_*`, then
-`i₊ ≤ i_*`. Here `Δⱼ = C_R δ αⱼ^(-1/2)` with `C_R = √(C_φ C_F)`.
-
-The consequence `‖xᵢ - x†‖ ≤ ωᵢ + Δᵢ` that the node mentions in passing is not stated. -/
+`i₊ ≤ i_*`. Here `Δⱼ = C_R δ αⱼ^(-1/2)` with `C_R = √(C_φ C_F)`. -/
 public
 theorem balancingIndex_le_of_bias_le (hs : IsSingularSystem K σ v u) {flt : Set.Ioi (0 : ℝ) → ℝ →
     ℝ} {Cflt CF : ℝ}
@@ -53,25 +71,11 @@ theorem balancingIndex_le_of_bias_le (hs : IsSingularSystem K σ v u) {flt : Set
   have hΔ : ∀ i j, i ≤ j → j ≤ N →
       (grid i : ℝ) ^ (-(1 : ℝ) / 2) ≤ (grid j : ℝ) ^ (-(1 : ℝ) / 2) :=
     fun i j hij hjN => rpow_neg_half_le_of_geometric hq hgeom hij hjN
-  have hdata : ∀ i, i ≤ N →
-      ‖spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid
-          i) z - spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid i) y‖
-        ≤ Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) :=
-    fun i _ => norm_spectralReg_sub_le_mul_rpow (α := grid i) hs hflt hF hz
   have herr : ∀ i, i ≤ N → ‖spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid
       i) z - moorePenrose K ⟨y, hy⟩‖ ≤
       (⨆ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ 2), φ lam * |1 - lam * flt (grid i) lam|) * ρ
-        + Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) := by
-    intro i hi
-    have h1 :=
-      norm_spectralReg_sub_moorePenrose_le_iSup (α := grid i) hs hflt hφ hρ hy hx
-    have h2 := hdata i hi
-    have h3 := norm_sub_le_norm_sub_add_norm_sub (spectralReg hs flt
-        (hflt.exists_bound_on_spectrum hs) (grid
-            i) z) (spectralReg hs flt (hflt.exists_bound_on_spectrum hs)
-      (grid i) y)
-      (moorePenrose K ⟨y, hy⟩)
-    linarith
+        + Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) :=
+    fun i _ => norm_spectralReg_sub_moorePenrose_le_bias_add hs hflt hF hφ hρ hy hx hz (grid i)
   refine balancingIndex_le _ histar fun j hj hjN => ?_
   have h1 := herr istar histar
   have h2 := herr j hjN

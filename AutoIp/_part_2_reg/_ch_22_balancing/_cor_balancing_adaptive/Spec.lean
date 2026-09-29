@@ -17,6 +17,7 @@ import AutoIp._part_2_reg._ch_19_general_source_conditions._lem_holder_is_index
 import AutoIp._part_2_reg._ch_22_balancing._lem_balancing_nonempty
 public import AutoIp._part_2_reg._ch_11_moore_penrose._def_moore_penrose
 public import AutoIp._part_2_reg._ch_15_spectral_regularization._def_qualification
+import AutoIp._part_2_reg._ch_22_balancing._lem_balancing_le_star
 
 section _cor_balancing_adaptive
 
@@ -77,11 +78,6 @@ public theorem balancing_orderOptimal (hs : IsSingularSystem K σ v u) {flt : Se
     fun i j hij hjN => as_le_of_geometric hq hgeom hij hjN
   have hΔ : ∀ i j, i ≤ j → j ≤ N → (grid i : ℝ) ^ (-(1 : ℝ) / 2) ≤ (grid j : ℝ) ^ (-(1 : ℝ) / 2) :=
     fun i j hij hjN => rpow_neg_half_le_of_geometric hq hgeom hij hjN
-  have hdata : ∀ i, i ≤ N →
-      ‖spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid
-          i) z - spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid i) y‖
-        ≤ Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) :=
-    fun i _ => norm_spectralReg_sub_le_mul_rpow (α := grid i) hs hflt hF hz
   have hφi : IsIndexFunction (‖K‖ ^ 2) (fun t => t ^ (ν / 2)) := isIndexFunction_rpow hν _
   have hx' : moorePenrose K ⟨y, hy⟩ ∈ sourceSetIndex hs (fun t => t ^ (ν / 2))
       (hφi.exists_bound_on_spectrum hs) ρ hρ := by
@@ -92,15 +88,8 @@ public theorem balancing_orderOptimal (hs : IsSingularSystem K σ v u) {flt : Se
       Cν * (grid i : ℝ) ^ (ν / 2) * ρ +
         Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) := by
     intro i hi
-    have h1 :=
-      norm_spectralReg_sub_moorePenrose_le_iSup (α := grid i) hs hflt hφi hρ hy hx'
+    have h1 := norm_spectralReg_sub_moorePenrose_le_bias_add hs hflt hF hφi hρ hy hx' hz (grid i)
     have h2 := mul_le_mul_of_nonneg_right (hQ.omega_le (grid i) (hκ i hi)) hρ.le
-    have h3 := hdata i hi
-    have h4 := norm_sub_le_norm_sub_add_norm_sub (spectralReg hs flt
-        (hflt.exists_bound_on_spectrum hs) (grid
-            i) z) (spectralReg hs flt (hflt.exists_bound_on_spectrum hs)
-      (grid i) y)
-      (moorePenrose K ⟨y, hy⟩)
     linarith
   have hdr : ∀ e : ℝ, ((δ / ρ) ^ (2 / (ν + 1))) ^ e
       = δ ^ (2 * e / (ν + 1)) / ρ ^ (2 * e / (ν + 1)) := by

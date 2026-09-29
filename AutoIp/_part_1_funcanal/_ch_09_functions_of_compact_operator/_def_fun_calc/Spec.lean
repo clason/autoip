@@ -20,8 +20,10 @@ variable {𝕜 : Type*} [RCLike 𝕜] {E F : Type*} [NormedAddCommGroup E] [Inne
 variable [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace 𝕜 F] [CompleteSpace F]
 variable {K : E →L[𝕜] F} {ι : Type*} {σ : ι → ℝ} {v : ι → E} {u : ι → F}
 
-/-- The series `x ↦ ∑ₙ φ(σₙ²) ⟨vₙ, x⟩ vₙ` in the formula for `φ(K*K)`, as a linear map. -/
-public noncomputable def IsSingularSystem.funCalcLinear (hs : IsSingularSystem K σ v u)
+/-- The series `x ↦ ∑ₙ φ(σₙ²) ⟨vₙ, x⟩ vₙ` in the formula for `φ(K*K)`, as a linear map. It is in
+the Spec because `φ(K*K)` is built from it and a definition can live only in a Spec; it is private
+because it is a step of the construction that the node does not state. -/
+noncomputable def IsSingularSystem.funCalcLinear (hs : IsSingularSystem K σ v u)
     (φ : ℝ → ℝ) (hφ : ∃ C, ∀ i, |φ (σ i ^ 2)| ≤ C) : E →ₗ[𝕜] E where
   toFun x := ∑' i, ((RCLike.ofReal (φ (σ i ^ 2)) : 𝕜) * inner 𝕜 (v i) x) • v i
   map_add' x y := by

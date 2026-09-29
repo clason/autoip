@@ -22,9 +22,7 @@ variable {K : E →L[𝕜] F}
 
 /-- The residual constant: for a regularizing filter and
 `C_r := sup_{α > 0, λ ∈ (0,κ]} |r_α(λ)|` with `r_α(λ) = 1 − λ φ_α(λ)`,
-`1 ≤ C_r ≤ 1 + C_φ` and `‖y − K R_α y‖ ≤ C_r ‖y‖` for all `y ∈ Y` and all `α > 0`.
-
-It holds for every `K`, `K = 0` included. -/
+`1 ≤ C_r ≤ 1 + C_φ` and `‖y − K R_α y‖ ≤ C_r ‖y‖` for all `y ∈ Y` and all `α > 0`. -/
 public
 theorem one_le_iSup_abs_one_sub_mul_and_norm_residual_le [CompleteSpace E] [CompleteSpace F]
     {ι : Type*} {σ : ι → ℝ} {v : ι → E} {u : ι → F} (hs : IsSingularSystem K σ v u) (hK : K ≠ 0)

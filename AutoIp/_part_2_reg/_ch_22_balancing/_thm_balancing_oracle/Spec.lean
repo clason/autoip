@@ -88,24 +88,11 @@ public theorem balancing_oracle (hs : IsSingularSystem K σ v u) {flt : Set.Ioi 
     rw [Real.sqrt_eq_rpow, neg_div, Real.rpow_neg ht]
   have hΔ : ∀ i j, i ≤ j → j ≤ N → (grid i : ℝ) ^ (-(1 : ℝ) / 2) ≤ (grid j : ℝ) ^ (-(1 : ℝ) / 2) :=
     fun i j hij hjN => rpow_neg_half_le_of_geometric hq hgeom hij hjN
-  have hdata : ∀ i, i ≤ N →
-      ‖spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid
-          i) z - spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid i) y‖
-        ≤ Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) :=
-    fun i _ => norm_spectralReg_sub_le_mul_rpow (α := grid i) hs hflt hF hz
   have herr : ∀ i, i ≤ N → ‖spectralReg hs flt (hflt.exists_bound_on_spectrum hs) (grid
       i) z - moorePenrose K ⟨y, hy⟩‖ ≤
       (⨆ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ 2), φ lam * |1 - lam * flt (grid i) lam|) * ρ
-        + Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) := by
-    intro i hi
-    have h1 := norm_spectralReg_sub_moorePenrose_le_iSup (α := grid i) hs hflt hφ hρ hy hx
-    have h2 := hdata i hi
-    have h3 := norm_sub_le_norm_sub_add_norm_sub (spectralReg hs flt
-        (hflt.exists_bound_on_spectrum hs) (grid
-            i) z) (spectralReg hs flt (hflt.exists_bound_on_spectrum hs)
-      (grid i) y)
-      (moorePenrose K ⟨y, hy⟩)
-    linarith
+        + Real.sqrt (Cflt * CF) * δ * (grid i : ℝ) ^ (-(1 : ℝ) / 2) :=
+    fun i _ => norm_spectralReg_sub_moorePenrose_le_bias_add hs hflt hF hφ hρ hy hx hz (grid i)
   have hωnn : ∀ i, (0 : ℝ) ≤
       ⨆ lam ∈ Set.Ioc (0 : ℝ) (‖K‖ ^ 2), φ lam * |1 - lam * flt (grid i) lam| :=
     fun i => Real.iSup_nonneg fun lam => Real.iSup_nonneg fun h =>
