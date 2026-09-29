@@ -1,3 +1,0 @@
-module
-
-public import AutoIp._part_2_reg._ch_14_order_optimality._thm_order_optimal_implies_convergence.Spec
