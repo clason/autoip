@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this project, please cite it as below."
+authors:
+  - family-names: Helin
+    given-names: Tapio
+    orcid: https://orcid.org/0000-0002-5788-0008
+  - family-names: Oksanen
+    given-names: Lauri
+    orcid: https://orcid.org/0000-0002-3228-7507
+  - family-names: Nursultanov
+    given-names: Medet
+    orcid: https://orcid.org/0000-0003-2447-940X
+title: "Autoformalized linear regularization theory"
+abstract: "Linear regularization theory, together with the functional analysis it rests on, formalized in Lean 4."
+repository: "https://github.com/l-oksanen/autoip"
+url: "https://github.com/l-oksanen/autoip"
+date-released: 2026-09-27
+keywords:
+  - "Lean formalization"
+  - "inverse problems"
+  - "regularization theory"
+  - "functional analysis"
+- references:
+  - authors:
+      - family-names: Clason
+      - given-names: Christian
+    title: "Regularization of Inverse Problems"
+    type: article
+    year: 2021
+    journal: arXiv
+    pages: 2001.00617
+    doi: 10.48550/arXiv.2001.00617
+
